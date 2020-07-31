@@ -39,16 +39,25 @@ df2.rename(columns = {'value':'days_to_flowering'}, inplace = True)
 km=np.intersect1d(df2['cultivar'], df1['cultivar'])
 fl1=df1[df1["cultivar"].isin(km)]
 
-#Creating a separate variable for labeling in visualization#
+#Visualization for flowering data
 fl1.loc[:,'set']= 'KSU'
 fl2.loc[:,'set']= 'MAC season 4'
 
-fl2=df2[df2["cultivar"].isin(km)]
+sns.set(style='whitegrid')
+result=result.sort_values("days_to_flowering",axis=0, ascending=True)
+sns.set(rc={'figure.figsize':(11.7,8.27)})
+e= result.set
+f= result.days_to_flowering
+g= result.cultivar
+chart=sns.scatterplot(g,f, hue=e , palette=["r", "c"])
 
+chart.set_xticklabels(labels=g, rotation=90)
+plt.show()
+
+fl2=df2[df2["cultivar"].isin(km)]
 
 fl2.index = pd.RangeIndex(start=0, stop=102, step=1)
 fl1.index = pd.RangeIndex(start=0, stop=77, step=1)
-
 
 fl2_date=fl2["date_of_flowering"]
 
@@ -276,7 +285,7 @@ for train_index, test_index in cv.split(X):
 
 std= (statistics.stdev(e))
 print('R^2 for 5-fold CV RF:', R2/ns)
-print('RMSE RF',error/ns,'+-', std)
+print('Root Mean square error for 5-fold CV RF',error/ns,'+-', std)
 
 # 5 fold cross-validation for Stochastic Gradient Descent Regression
 
@@ -297,4 +306,4 @@ for train_index, test_index in cv.split(X,y):
 std= (statistics.stdev(e))
 
 print('R^2 for 5-fold CV SG:', R2/ns)
-print('Root Mean square error for 5-flod CV SG:',error/ns, '+-', std)
+print('Root Mean square error for 5-fold CV SG:',error/ns, '+-', std)
