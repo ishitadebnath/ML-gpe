@@ -1,0 +1,61 @@
+---
+title: "Phylogenetic Tree"
+author: "Ishita Debnath"
+date: "2/15/2021"
+output: rmarkdown::github_document
+---
+
+```{r}
+library(phytools)
+library(ggtree)
+library(ape)
+library(adephylo)
+```
+## Creating a matrix of patristic distances between the cultivars
+
+The cultivars were chosen based on our machin learning model results.
+```{r}
+phy<-read.tree("/Users/ishitadebnath/Desktop/Genomics/tree.txt")
+index<-read.table("/Users/ishitadebnath/Desktop/Genomics/index.txt", header = F)
+index$V1<-as.character(index$V1)
+index$V2<-as.character(index$V2)
+
+phy$tip.label<-index[[2]][match(phy$tip.label, index[[1]])]
+w<-c("PI569244" , "PI302252", "PI152651", "PI152971", "PI63715", "PI576401", "PI641860", "PI181083", "PI180348","PI563032", "PI656065","PI154987", "PI197542","PI656035","PI176766",
+"PI181080" , "PI196586", "PI620157", "PI535792", "PI329435", "PI533998","PI152828", "PI506030", "PI535785","PI535783", "PI641817","PI506030", "PI641815", "PI329338", "PI146890")
+
+matg<-matrix(NA, nrow = length(w), ncol = length(w), dimnames = list(w))
+colnames(matg) <- w
+for (i in 1:length(w)){
+a=w[i]
+for (j in 1:length(w)){
+b=w[j]
+matg[i,j]=cophenetic.phylo(phy)[a,b]
+}
+}
+```
+## Distribution of the patristic distance
+```{r}
+matg[lower.tri(matg)] <- NA
+hist(matg, xlab = "Pairwise distances")
+summary(matg)
+```
+
+## Plotting the phylogenetic tree
+```{r}
+plot(phy, show.tip.label = FALSE,no.margin=TRUE)
+tiplabels(frame="circle",bg="red",cex=.3, tip=which(phy$tip.label%in% c( "PI569244" , "PI302252", "PI152651", "PI152971", "PI63715", "PI576401", "PI641860", "PI181083", "PI180348","PI563032", "PI656065","PI154987", "PI197542","PI656035","PI176766")))
+tiplabels(frame="circle",bg="green",cex=.3, tip=which(phy$tip.label%in% c( "PI181080" , "PI196586", "PI620157", "PI535792", "PI329435", "PI533998","PI152828", "PI506030", "PI535785","PI535783", "PI641817","PI506030", "PI641815", "PI329338", "PI146890")))
+legend(0.95, 350, legend=c("High Error", "Low Error"),
+       fill=c("red", "green"), xpd = T, cex = 1)
+```
+
+## Pruning the tree
+```{r}
+mod<-keep.tip(phy, w)
+plot(mod)
+tiplabels(frame="circle",bg="red",cex=.3, tip=which(mod$tip.label%in% c( "PI569244" , "PI302252", "PI152651", "PI152971", "PI63715", "PI576401", "PI641860", "PI181083", "PI180348","PI563032", "PI656065","PI154987", "PI197542","PI656035","PI176766")))
+tiplabels(frame="circle",bg="green",cex=.3, tip=which(mod$tip.label%in% c( "PI181080" , "PI196586", "PI620157", "PI535792", "PI329435", "PI533998","PI152828", "PI506030", "PI535785","PI535783", "PI641817","PI506030", "PI641815", "PI329338", "PI146890")))
+legend(1, 30, legend=c("High Error", "Low Error"),
+       fill=c("red", "green"), xpd = T, cex = 1)
+```
